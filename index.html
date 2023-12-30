@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="nebu_micro_services">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>nebu_micro_services</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = null;
+  </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
+</head>
+<body>
+  <script>
+    window.addEventListener('load', function(ev) {
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+
+// for usb.dart
+    function connectToDevice() {
+      navigator.usb.requestDevice({ filters: [{vendorId: 0X0A5F}] })
+     .then(device => {
+       console.log('Connected to device:', device);
+       console.log(device.productName); 
+       console.log(device.manufacturerName);
+      // Further communication with the USB device can be handled here
+       return device.open()
+         .then(() => device.selectConfiguration(1))
+         .then(() => device.claimInterface(0))
+         .then(() => {
+           // Send the data (ZPL commands) to the printer
+           let data = 'llll';
+           const dataToSend = new TextEncoder().encode("data"); // Example data encoding
+
+           return device.transferOut(1, dataToSend);
+         })
+   });
+ }
+    
+    // function connectToUSBPrinter() {
+    //   // Code to connect to the USB printer using Web Serial API
+    //   // ...
+    //   navigator.usb.requestDevice({ filters: [{ usbVendorId: 0X0A5F }] })
+    //   .then(device => {
+    //   console.log('Connected to USB printer:', device);
+    //   console.log(device.productName);
+    //   // Further interaction with the printer can be handled here
+    //   // For example, setting configurations, claiming interfaces, etc.
+    // //   device.setSignals({ dataTerminalReady: true, requestToSend: true });
+      
+    // //   // Example: Claim interface for communication
+    // //   device.claim().then(() => {
+    // //     console.log('Interface claimed for communication')
+    //  })
+    // .catch(error => {
+    //   console.error('Error connecting to USB printer:', error);
+    //  });
+    // //  });
+    // }
+    function printDataToUSBPrinter(data) {
+      // Code to send data to the USB printer for printing
+      // ...
+      navigator.usb.requestDevice({ filters: [{ usbVendorId: 0X0A5F }] })
+    .then(device => {
+      console.log('Connected to USB printer for printing:', device);
+      console.log(device.productName);
+//       function exploreZebraPrinterEndpoints(device) {
+//   console.log('Connected to Zebra printer:', device);
+
+//   device.configurations.forEach(configuration => {
+//     configuration.interfaces.forEach(interface => {
+//       interface.endpoints.forEach(endpoint => {
+//         console.log('Endpoint:', endpoint);
+//         console.log('Direction:', endpoint.direction); // IN or OUT
+//         console.log('Number:', endpoint.endpointNumber);
+//         console.log('Type:', endpoint.type); // Control, Interrupt, Bulk, etc.
+//         // Access and log other specific endpoint properties as needed
+//       });
+//     });
+//   });
+// }
+      console.log(device.manufacturerName);
+
+     
+      // Open the device and claim its interface for communication
+      return device.open()
+        .then(() => device.claimInterface(0))
+        .then(() => {
+          // Convert the data to Uint8Array or ArrayBuffer
+          const encoder = new TextEncoder();
+          const dataArray = encoder.encode(data); // Convert data to an array of bytes
+          console.log(dataArray);
+          console.log(data);
+          // Send data to the printer
+          return device.transferOut(1, dataArray); // Use the appropriate endpoint and data
+        })
+        .catch(error => {
+          console.error('Error in further communication:', error);
+        });
+    })
+    .catch(error => {
+      console.error('Error connecting to USB printer:', error);
+    })
+      // Write the provided data to the printer
+      // const writer = device.writable.getWriter();
+      // writer.write(data).then(() => {
+      //   console.log('Data sent to USB printer:', data);
+      //   writer.releaseLock();
+      // }).catch(error => {
+      //   console.error('Error sending data to USB printer:', error);
+      //   writer.releaseLock();
+      // });
+   // })
+    // .catch(error => {
+    //   console.error('Error connecting to USB printer for printing:', error);
+    // });
+    }
+    
+  
+    
+  </script>
+  <!-- web/index.html -->  
+ <script src="js/qz-tray.js"></script>  
+ <script src="js/qzSecurity.js"></script>
+ <!-- web/index.html --> 
+
+ <!-- jsrsasign library required for JavaScript signing. In production,download and reference a local copy!!-->
+ <script src="https://cdn.rawgit.com/kjur/jsrsasign/c057d3447b194fa0a3fdcea110579454898e093d/jsrsasign-all-min.js">
+</script>
+
+  <!-- Flutter web app script -->
+  <script src="main.dart.js" type="application/javascript"></script>
+    
+    
+
+// button.addEventListener("click", () => {
+//   const usbVendorId = 0X0A5F;
+//   navigator.serial
+//     .requestPort({ filters: [{ usbVendorId }] })
+//     .then((device) => {
+//       // Connect to `device` or add it to the list of available ports.
+//       connectToPort(device);
+//     })
+//     .catch((e) => {
+//       // The user didn't select a device.
+//       console.log('error');
+//     });
+// });
+// function connectToPort(device) {
+//   // Open the device for communication
+//   device.open({ baudrate: 9600 })
+//     .then(() => {
+//       // Perform actions after successfully opening the device
+//       // For example, you might read or write data here
+//       console.log('Port opened:', device);
+      
+//       // Write data to the device (example)
+//       const writer = device.writable.getWriter();
+//       writer.write(new Uint8Array([0x41, 0x42])); // Example data to write (ASCII 'AB')
+//       writer.releaseLock();
+      
+//       // // Read data from the device (example)
+//       // const reader = device.readable.getReader();
+//       // reader.read().then(({ value, done }) => {
+//       //   if (!done) {
+//       //     console.log('Read data:', value);
+//       //     // Handle the received data here
+//       //   }
+//       // });
+//     })
+//     .catch((error) => {
+//       console.error('Error opening device:', error);
+//     });
+// }
+
+// function connectToDevice() {
+//   navigator.usb.requestDevice({ filters: [{ vendorId: 0X0A5F, productId: 0x0164 }] })
+//     .then(device => {
+//       console.log('Connected to device:', device);
+      
+//       // Open the device and select the configuration
+//       return device.open()
+//         .then(() => device.selectConfiguration(1))
+//         .then(() => {
+//           // Claim the interface for communication
+//           return device.claimInterface(0);
+//         })
+//         .then(() => {
+//           // Example: Sending ZPL commands to the printer
+//           let zplCommands = '^XA\\n^FO50,50^A0N,50,50^FDHello, World!^FS\\n^XZ';
+//           // let encoder = new TextEncoder();
+//           // let dataArray = encoder.encode(zplCommands);
+          
+//           // Send data (ZPL commands) to the printer
+//           return device.transferOut(1, zplCommands);
+//         })
+//         .catch(error => {
+//           console.error('Error in further communication:', error);
+//         });
+//     })
+//     .catch(error => {
+//       console.error('Error connecting to device:', error);
+//     });
+// }
+
+
+
+
+  </script>
+</body>
+</html>
+    
